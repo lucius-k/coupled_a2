@@ -131,6 +131,16 @@ def Seff (hw, nG, a):
         Seff = 1
     return Seff
 
+    # !!!! WRONG and TEMPORARY
+def theta_w (hw, aPar):
+    theta_w = hw
+#Differential water capacity function
+def C (hw, theta_w):
+    dh = np.sqrt(eps)
+    hw = hw + 1j * dh
+    C = theta_w // dh
+    return C
+
 plt.close('all')
 fig1, ax1 = plt.subplots(figsize=(7, 4))
 for ii in np.arange(0, nN, 10):
