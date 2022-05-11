@@ -71,6 +71,9 @@ lambdaOther = 2.0  # [W/(mK)] thermal conductivity of other minerals
 lambdaSolids = lambdaQuartz ** q * lambdaOther ** (1 - q)           #Float
 lambdaBulk = lambdaWat ** n * lambdaSolids ** (1 - n)               #Float
 
+nG = 2.6    #van Genuchten parameter
+a = 1.45E1  #van Genuchten parameter
+
 # collect soil parameters in a namedtuple: soilPar
 
 sPar = {'zetaBN': np.ones(np.shape(zN)) * ((1 - n) * zetaSol
@@ -95,9 +98,20 @@ bPar = {'avgT': 273.15 + 10,
 bPar = pd.Series(bPar)           # one dimensional array with all boundary parameters
 # ## Initial Conditions
 # Initial Conditions
-TIni = np.ones(np.shape(zN)) * (10.0 + 273.15)  # K
+WL = -0.25  #initial water level
+hIni = np.ones(np.shape(zN)) * (10.0 + 273.15)  # K
 
 MyHD = UFC.FlowDiffusion(sPar, mDim, bPar)
+
+#Effective saturation function 
+def Seff (hw, nG, a):
+    hc = -hw
+    if hc > 0:
+        Seff = ((1 + (a * hc)**nG)**(1 - 1 // n))
+    else:
+        Seff = 1
+    return Seff
+
 
 # In[2]: Solve IVP over time range
 
@@ -106,7 +120,7 @@ tOut = np.linspace(0, 365.25 * 10, 365)  # time
 nOut = np.shape(tOut)[0]
 
 #mt.tic()
-int_result = MyHD.IntegrateFF(tOut, TIni.squeeze())
+int_result = MyHD.IntegrateFF(tOut, hIni.squeeze())
 
 #mt.toc()
 
