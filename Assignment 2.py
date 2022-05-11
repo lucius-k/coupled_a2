@@ -18,11 +18,14 @@ import seaborn as sns
 # =============================================================================
 import UnsaturatedFlowClass as UFC
 
+# =============================================================================
+# =================================== Domain ==================================
+# =============================================================================
 sns.set()
-# Domain
-nIN = 151
-# soil profile until 15 meters depth
-zIN = np.linspace(-15, 0, num=nIN).reshape(nIN, 1)
+
+nIN = 101
+# soil profile until 1 meters depth
+zIN = np.linspace(-1, 0, num=nIN).reshape(nIN, 1)
 # nIN = np.shape(zIN)[0]
 zN = np.zeros(nIN - 1).reshape(nIN - 1, 1)
 zN[0, 0] = zIN[0, 0]
@@ -33,11 +36,8 @@ nN = np.shape(zN)[0]
 ii = np.arange(0, nN - 1)
 dzN = (zN[ii + 1, 0] - zN[ii, 0]).reshape(nN - 1, 1)
 dzIN = (zIN[1:, 0] - zIN[0:-1, 0]).reshape(nIN - 1, 1)
-# =============================================================================
-#   Model dimensions
-# =============================================================================
 
-# collect model dimensions in a namedtuple: modDim
+# collect model dimensions in a pandas series: mDim
 mDim = {'zN' : zN,
         'zIN' : zIN,
         'dzN' : dzN,
@@ -47,40 +47,24 @@ mDim = {'zN' : zN,
         }
 mDim = pd.Series(mDim)
 
-# ## Definition of material properties
-# Currently this model is based on a homogeneous soil with constant
-# water content
+# =============================================================================
+# ============================== Soil Properties ==============================
+# =============================================================================
 
-# Soil Properties this is the left side constant in the heat function
-# [J/(m3 K)] volumetric heat capacity of soil solids
-zetaSol = 2.235e6
-# [J/(m3 K)] volumetric heat capacity of water (Fredlund 2006)
-zetaWat = 4.154e6
-
-# rhoW = 1000  # [kg/m3] density of water
+rhoW = 1000  # [kg/m3] density of water
 rhoS = 2650  # [kg/m3] density of solid phase
 rhoB = 1700  # %[kg/m3] dry bulk density of soil
-n = 1 - rhoB / rhoS  # [-] porosity of soil = saturated water content.
-q = 0.75  # quartz content
+por = 1 - rhoB / rhoS  # [-] porosity of soil = saturated water content
 
-# [W/(mK)] thermal conductivity of water (Remember W = J/s)
-lambdaWat = 0.58
-lambdaQuartz = 6.5  # [W/(mK)] thermal conductivity of quartz
-lambdaOther = 2.0  # [W/(mK)] thermal conductivity of other minerals
-
-lambdaSolids = lambdaQuartz ** q * lambdaOther ** (1 - q)           #Float
-lambdaBulk = lambdaWat ** n * lambdaSolids ** (1 - n)               #Float
-
-nG = 2.6    #van Genuchten parameter
-a = 1.45E1  #van Genuchten parameter
-
-# collect soil parameters in a namedtuple: soilPar
-
-sPar = {'zetaBN': np.ones(np.shape(zN)) * ((1 - n) * zetaSol
-                                                + n * zetaWat),
-        'lambdaIN': np.ones(np.shape(zIN)) * lambdaBulk * (24 * 3600)
-        }
-sPar = pd.Series(sPar)           # one dimensional array with all soil parameters
+# Soil properties match those of a silt
+theta_r = np.random.uniform(0.05, 0.07)    # [-] Residual water content
+theta_s = por                              # [-] Saturated water content
+k_sat = np.random.uniform(1, 3)*(10**-5)   # [m/day] Saturated hydaulic conductivity
+a = np.random.uniform(1.5, 1.1)            # [/m] van Genuchten parameter
+n = np.random.uniform(1.3, 1.5)            # [-] van Genuchten parameter
+cv = 10**-4                                # [/m] Compressibility
+sPar = {'theta_r': theta_r, 'theta_s': theta_s, 'k_sat': k_sat, 'a': a, 'n': n, 'cv': cv}
+sPar = pd.Series(sPar)
 
 # ## Definition of the Boundary Parameters
 # boundary parameters
