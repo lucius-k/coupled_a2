@@ -103,14 +103,6 @@ hIni = np.ones(np.shape(zN)) * (10.0 + 273.15)  # K
 
 MyHD = UFC.FlowDiffusion(sPar, mDim, bPar)
 
-#Effective saturation function 
-def Seff (hw, nG, a):
-    hc = -hw
-    if hc > 0:
-        Seff = ((1 + (a * hc)**nG)**(1 - 1 // n))
-    else:
-        Seff = 1
-    return Seff
 
 
 # In[2]: Solve IVP over time range
@@ -129,6 +121,15 @@ if int_result.success:
     print('Integration has been successful')
 
 qH = MyHD.FlowFlux(tOut, int_result.y)
+
+#Effective saturation function 
+def Seff (hw, nG, a):
+    hc = -hw
+    if hc > 0:
+        Seff = ((1 + (a * hc)**nG)**(1 - 1 // n))
+    else:
+        Seff = 1
+    return Seff
 
 plt.close('all')
 fig1, ax1 = plt.subplots(figsize=(7, 4))
