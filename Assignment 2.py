@@ -104,20 +104,26 @@ int_result = MyHD.IntegrateFF(tOut, hIni.squeeze())
 if int_result.success:
     print('Integration has been successful')
 
-qH = MyHD.FlowFlux(tOut, int_result.y)
+qW = MyHD.FlowFlux(tOut, int_result.y)  #Flux at the internode
 
 #Effective saturation function 
-def Seff (hw, nG, a):
+def Seff (hw, sPar):
+    a = sPar.a
+    n = sPar.n
     hc = -hw
     if hc > 0:
-        Seff = ((1 + (a * hc)**nG)**(1 - 1 // n))
+        Seff = ((1 + (a * hc)**n)**(1 - 1 // n))
     else:
         Seff = 1
     return Seff
 
+kr = Seff**3    #Relative permiability
+
     # !!!! WRONG and TEMPORARY
 def theta_w (hw, aPar):
     theta_w = hw
+    return theta_w
+
 #Differential water capacity function
 def C (hw, theta_w):
     dh = np.sqrt(eps)
@@ -145,7 +151,7 @@ ax2.set_xlabel('temperature [K]')
 fig3, ax3 = plt.subplots(figsize=(4, 7))
 # plot fluxes after 2nd output time (initial rate is extreme due to initial conditions)
 for ii in np.arange(2, nOut, 10):
-    ax3.plot(qH[:, ii], zIN, '-')
+    ax3.plot(qW[:, ii], zIN, '-')
 
 ax3.set_title('Heat Flux vs. depth (ODE)')
 ax3.set_ylabel('depth [m]')
