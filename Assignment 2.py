@@ -7,7 +7,7 @@ Created on Tue May  3 16:48:53 2022
 """
 import numpy as np
 import pandas as pd
-import scipy.integrate as spi
+#import scipy.integrate as spi
 import scipy.sparse as sp
 #import MyTicToc as mt
 import matplotlib.pyplot as plt
@@ -127,7 +127,7 @@ def theta_w(hw, sPar):
 #Differential water capacity function
 
 def C (hw, theta_w):
-    dh = np.spacing(1)
+    dh = 1e-8
     hw = hw + 1j * dh
     C = theta_w / dh
     return C
@@ -154,12 +154,12 @@ def K_int(h_w, sPar, mDim):
 #Flux at the internodes
 
 #Flux at the internodes
-def FlowFlux(self, t, H, mDim, hw, k, bndH, bndB, robin):  
-    nr,nc = H.shape                     
+def FlowFlux(self, t, F, mDim, hw, k, bndH, bndB, robin):  
+    nr,nc = F.shape                     
     nIN = self.mDim.nIN             
     nN = self.mDim.nN                   
     dzN = self.mDim.dzN
-    q = np.zeros((nIN, nc),dtype=H.dtype)  
+    q = np.zeros((nIN, nc),dtype=F.dtype)  
     
     # Flux at all the intermediate nodes
     ii = np.arange(1, nIN-1)
@@ -180,7 +180,7 @@ def FlowFlux(self, t, H, mDim, hw, k, bndH, bndB, robin):
     return q
 
 #Net flux at the nodes
-def NF (t, hw, sPar, mDim, Bnd):
+def NF (t, hw, sPar, mDim):
     nIN = mDim.nIN
     dzIN = mDim.dzIN
     MM = Mass_Matrix(hw)
@@ -189,20 +189,41 @@ def NF (t, hw, sPar, mDim, Bnd):
     NF = - (F [ii + 1, 1] - F [ii ,1]) / (dzIN [ii, 1] * MM [ii, 1])
     return NF
 
-def J(t, h_w, sPar, mDim, Bnd):
-    dh = np.spacing()
-    n = h_w.shape
-    Jac = np.zeros(n(1))
+def IntegrateFF(self, tRange, iniSt):
     
-    for ii in range(len(h_w)):
-        h_w_component = h_w
-        h_w_component[ii] = h_w_component[ii] + 1j * dh
-        dFdy =NF(t, h_w, sPar, mDim, Bnd).imag / dh
-        Jac[:, ii] = dFdy[:]
-    Jac = sp.sparse.csr_matrix(Jac)    
-    return Jac
+    def dYdt(t, F):
+        if len(F.shape)==1:
+            F = F.reshape(self.mDim.nN,1)
+        rates = self.DivHeatFlux(t, F)
+        return rates
+    
+    def jacFun(t, y):
+        if len(y.shape)==1:
+            y = y.reshape(self.mDim.nN,1)
+    
+        nr, nc = y.shape
+        dh = 1e-8
+        ycmplx = y.copy().astype(complex)
+        ycmplx = np.repeat(ycmplx,nr,axis=1)
+        c_ex = np.ones([nr,1])* 1j*dh
+        ycmplx = ycmplx + np.diagflat(c_ex,0)
+        dfdy = dYdt(t, ycmplx).imag/dh
+        return sp.coo_matrix(dfdy)
 
-MyHD = NF(sPar, mDim)
+# def J(t, h_w, sPar, mDim, Bnd):
+#     dh = np.spacing()
+#     n = h_w.shape
+#     Jac = np.zeros(n(1))
+    
+#     for ii in range(len(h_w)):
+#         h_w_component = h_w
+#         h_w_component[ii] = h_w_component[ii] + 1j * dh
+#         dFdy =NF(t, h_w, sPar, mDim, Bnd).imag / dh
+#         Jac[:, ii] = dFdy[:]
+#     Jac = sp.sparse.csr_matrix(Jac)    
+#     return Jac
+
+MyHD = NF(t, hw, sPar, mDim)
 
 int_result = MyHD.IntegrateFF(tOut, hIni.squeeze())
 
