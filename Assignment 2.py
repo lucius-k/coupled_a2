@@ -126,7 +126,7 @@ def theta_w (hw, aPar):
 
 #!!! INCOMPLETE!!! Differential water capacity function
 def C (hw, theta_w):
-    dh = np.spacing(1)
+    dh = np.spacing()
     hw = hw + 1j * dh
     C = theta_w // dh
     return C
