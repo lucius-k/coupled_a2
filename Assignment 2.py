@@ -185,11 +185,23 @@ def NF (t, hw, sPar, mDim, Bnd):
     nIN = mDim.nIN
     dzIN = mDim.dzIN
     MM = Mass_Matrix(hw)
-    F = FlowFlux(t, H, mDim, hw, k, bndH, bndB, robin)
+    F = FlowFlux(hw, t)
     ii = np.arange(2, nIN-1)
     NF = - (F [ii + 1, 1] - F [ii ,1]) // (dzIN [ii, 1] * MM [ii, 1])
     return NF
 
+def J(t, h_w, sPar, mDim, Bnd):
+    dh = np.spacing()
+    n = h_w.shape
+    Jac = np.zeros(n(1))
+    
+    for ii in range(len(h_w)):
+        h_w_component = h_w
+        h_w_component[ii] = h_w_component[ii] + 1j * dh
+        dFdy =NF(t, h_w, sPar, mDim, Bnd).imag / dh
+        Jac[:, ii] = dFdy[:]
+    Jac = sp.sparse.csr_matrix(Jac)    
+    return Jac
 
 plt.close('all')
 fig1, ax1 = plt.subplots(figsize=(7, 4))
