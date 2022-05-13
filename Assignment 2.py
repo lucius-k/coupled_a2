@@ -56,6 +56,7 @@ rhoS = 2650                                 # [kg/m3] Density of solid phase
 rhoB = 1700                                 # [kg/m3] Dry bulk density of soil
 por = 1 - rhoB / rhoS                       # [-] Porosity of soil = saturated water content
 beta = 4.5 * 10 ** -6                       # [/m] Compressibility of water
+g = 9.81                        
 
 # Soil properties match those of a silt
 theta_r = np.random.uniform(0.05, 0.07)    # [-] Residual water content
@@ -107,6 +108,10 @@ if int_result.success:
 
 qW = MyHD.FlowFlux(tOut, int_result.y)  #Flux at the internode
 
+def BndHTop(self, t):           # Head top as function of time
+    bndH = -0.001 * (t > 25)  # m/day       
+    return bndH
+
 #Effective saturation function 
 def Seff (hw, sPar):
     a = sPar.a
@@ -138,6 +143,11 @@ def Mass_Matrix(h_w):
     MMatrix = C + S_s * S
     return MMatrix
 
+def Flux(h_w, t):
+    K = np.transpose("return Kfunction")
+    ii = np.arange(2, nIN-1)
+    FLux[ii] = - K [ii - 1]
+    return Flux
 
 plt.close('all')
 fig1, ax1 = plt.subplots(figsize=(7, 4))
