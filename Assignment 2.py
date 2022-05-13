@@ -155,11 +155,11 @@ def K_int(h_w):
 #Flux at the internodes
 
 #Flux at the internodes
-def Flux(h_w, t):
-    K = np.transpose("return Kfunction")
-    ii = np.arange(2, nIN-1)
-    FLux[ii] = - K [ii - 1] * (h_w[ii] - h_w[ii - 1]) / (dzN[ii - 1] + 1)
-    return Flux
+#def Flux(h_w, t):
+#    K = np.transpose("return Kfunction")
+#    ii = np.arange(2, nIN-1)
+#    FLux[ii] = - K [ii - 1] * (h_w[ii] - h_w[ii - 1]) / (dzN[ii - 1] + 1)
+#    return Flux
 
 #Net flux at the nodes
 def NF (t, hw, sPar, mDim, Bnd):
