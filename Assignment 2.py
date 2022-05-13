@@ -126,10 +126,9 @@ def Seff (hw, sPar):
 kr = Seff**3    #Relative permiability
 
     # !!!! WRONG and TEMPORARY
-def theta_w (hw, aPar):
-    theta_w = hw
+def theta_w (h_w):
+    theta_w = theta_r + (theta_s - theta_r) * Seff
     return theta_w
-
 #!!! INCOMPLETE!!! Differential water capacity function
 def C (hw, theta_w):
     dh = np.sqrt(eps)
@@ -146,7 +145,7 @@ def Mass_Matrix(h_w):
 def Flux(h_w, t):
     K = np.transpose("return Kfunction")
     ii = np.arange(2, nIN-1)
-    FLux[ii] = - K [ii - 1]
+    FLux[ii] = - K [ii - 1] * (h_w[ii] - h_w[ii - 1]) / (dzN[ii - 1] + 1)
     return Flux
 
 plt.close('all')
