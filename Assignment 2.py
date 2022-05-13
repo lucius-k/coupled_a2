@@ -16,7 +16,7 @@ import seaborn as sns
 # =============================================================================
 #    Initialize
 # =============================================================================
-import UnsaturatedFlowClass as UFC
+#import UnsaturatedFlowClass as UFC
 
 # =============================================================================
 # =================================== Domain ==================================
@@ -92,7 +92,6 @@ sPar = pd.Series(sPar)
 WL = -0.25  #initial water level
 hIni = -0.75 - zN #np.ones(np.shape(zN)) * (10.0 + 273.15)  # K
 
-MyHD = UFC.FlowDiffusion(sPar, mDim)
 
 
 
@@ -103,15 +102,7 @@ tOut = np.linspace(0, 365.25 * 10, 365)  # time
 nOut = np.shape(tOut)[0]
 
 #mt.tic()
-int_result = MyHD.IntegrateFF(tOut, hIni.squeeze())
 
-#mt.toc()
-
-# Dirichlet boundary condition: write boundary temperature to output.
-if int_result.success:
-    print('Integration has been successful')
-
-qW = MyHD.FlowFlux(tOut, int_result.y)  #Flux at the internode
 
 def BndHTop(self, t):           # Head top as function of time
     bndH = -0.001 * (t > 25)  # m/day       
@@ -125,14 +116,20 @@ def Seff (hw, sPar):
     Seff = ((1 + (a * (hc > 0) * hc)**n)**-(1 - 1 / n))
     return Seff
 
-#!!! INCOMPLETE!!! Differential water capacity function
+#Differential water capacity function
+
+def theta_w(hw, sPar):
+    theta_r = sPar.theta_r
+    theta_s = sPar.theta_s
+    theta_w = theta_r + (theta_s - theta_r) * Seff
+    return theta_w
 
 #Differential water capacity function
 
 def C (hw, theta_w):
     dh = np.spacing(1)
     hw = hw + 1j * dh
-    C = theta_w // dh
+    C = theta_w / dh
     return C
 
 #Mass Matrix for Richards equation
@@ -189,7 +186,7 @@ def NF (t, hw, sPar, mDim, Bnd):
     MM = Mass_Matrix(hw)
     F = FlowFlux(hw, t)
     ii = np.arange(2, nIN-1)
-    NF = - (F [ii + 1, 1] - F [ii ,1]) // (dzIN [ii, 1] * MM [ii, 1])
+    NF = - (F [ii + 1, 1] - F [ii ,1]) / (dzIN [ii, 1] * MM [ii, 1])
     return NF
 
 def J(t, h_w, sPar, mDim, Bnd):
@@ -204,6 +201,17 @@ def J(t, h_w, sPar, mDim, Bnd):
         Jac[:, ii] = dFdy[:]
     Jac = sp.sparse.csr_matrix(Jac)    
     return Jac
+
+MyHD = NF(sPar, mDim)
+
+int_result = MyHD.IntegrateFF(tOut, hIni.squeeze())
+
+
+# Dirichlet boundary condition: write boundary temperature to output.
+if int_result.success:
+    print('Integration has been successful')
+
+qW = MyHD.FlowFlux(tOut, int_result.y)  #Flux at the internode
 
 plt.close('all')
 fig1, ax1 = plt.subplots(figsize=(7, 4))
