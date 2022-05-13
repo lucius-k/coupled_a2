@@ -157,11 +157,30 @@ def K_int(h_w):
 #Flux at the internodes
 
 #Flux at the internodes
-#def Flux(h_w, t):
-#    K = np.transpose("return Kfunction")
-#    ii = np.arange(2, nIN-1)
-#    FLux[ii] = - K [ii - 1] * (h_w[ii] - h_w[ii - 1]) / (dzN[ii - 1] + 1)
-#    return Flux
+def FlowFlux(self, t, H, mDim, hw, k, bndH, bndB, robin):  
+    nr,nc = H.shape                     
+    nIN = self.mDim.nIN             
+    nN = self.mDim.nN                   
+    dzN = self.mDim.dzN
+    q = np.zeros((nIN, nc),dtype=H.dtype)  
+    
+    # Flux at all the intermediate nodes
+    ii = np.arange(1, nIN-1)
+    q[ii] = -k[ii-1]*((hw[ii]-hw[ii-1])/(dzN[ii-1])+1)
+    
+    # Flux at top
+    if t > 25:
+        q[nIN-1] = bndH
+    else:
+        q[nIN-1] = 0
+        return
+    
+    if bndB == 'gravity':
+        q[0] = 0
+    else:
+        q[0] = -robin[1]*(hw[0]-robin[1])
+        return
+    return q
 
 #Net flux at the nodes
 def NF (t, hw, sPar, mDim, Bnd):
