@@ -125,11 +125,6 @@ def Seff (hw, sPar):
     Seff = ((1 + (a * (hc > 0) * hc)**n)**-(1 - 1 / n))
     return Seff
 
-def thetaW(hw,sPar):
-    sEff=Seff(hw,
-              )
-
-
 #!!! INCOMPLETE!!! Differential water capacity function
 
 #Differential water capacity function
