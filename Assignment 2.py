@@ -117,37 +117,34 @@ def Seff (hw, sPar):
     a = sPar.a
     n = sPar.n
     hc = -hw
-    if hc > 0:
-        Seff = ((1 + (a * hc)**n)**(1 - 1 // n))
-    else:
-        Seff = 1
+    Seff = ((1 + (a * (hc > 0).hc)**n)**(1 - 1 // n))
     return Seff
 
 
 
-    # !!!! WRONG and TEMPORARY
-def theta_w (h_w):
-    theta_w = theta_r + (theta_s - theta_r) * Seff
-    return theta_w
-<<<<<<< HEAD
+
 #!!! INCOMPLETE!!! Differential water capacity function
-=======
 
 #Differential water capacity function
+<<<<<<< HEAD
 >>>>>>> aed3bfc3e7db2ff29e053491a2dfd6483d420879
 def C(hw, theta_w):
+=======
+def C (hw, theta_w):
+>>>>>>> 6961d17ccf393aa32d6c4bbc96f47a73dbe401b6
     dh = np.spacing()
     hw = hw + 1j * dh
     C = theta_w // dh
     return C
 
-<<<<<<< HEAD
+#Mass Matrix for Richards equation
 def Mass_Matrix(h_w):
     S = theta_w / theta_s  
     S_s = rhoW * g *(cv + theta_s * beta)
     MMatrix = C + S_s * S
     return MMatrix
 
+<<<<<<< HEAD
    
 def K_int(h_w):
     k_sat = sPar.k_sat
@@ -162,20 +159,31 @@ def K_int(h_w):
 
     
 #Flux at the internodes
+=======
+#Flux at the internodes
+def Flux(h_w, t):
+    K = np.transpose("return Kfunction")
+    ii = np.arange(2, nIN-1)
+    FLux[ii] = - K [ii - 1] * (h_w[ii] - h_w[ii - 1]) / (dzN[ii - 1] + 1)
+    return Flux
+=======
+#Net flux at the nodes
+>>>>>>> 6961d17ccf393aa32d6c4bbc96f47a73dbe401b6
 def NF (t, hw, sPar, mDim, Bnd):
     nIN = mDim.nIN
-    dzN = mDim.dzN
-    rob = Bnd.Rob
-    RF = Bnd.top
-    low = Bnd.low
-    
-    
-    
+    dzIN = mDim.dzIN
+    MM = Mass_Matrix(hw)
+    F = Flux(h_w, t)
+    ii = np.arange(2, nIN-1)
+    NF = - (F [ii + 1, 1] - F [ii ,1]) // (dzIN [ii, 1] * MM [ii, 1])
     return NF
+<<<<<<< HEAD
 
 
 
 >>>>>>> aed3bfc3e7db2ff29e053491a2dfd6483d420879
+=======
+>>>>>>> 6961d17ccf393aa32d6c4bbc96f47a73dbe401b6
 
 plt.close('all')
 fig1, ax1 = plt.subplots(figsize=(7, 4))
