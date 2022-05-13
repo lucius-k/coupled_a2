@@ -128,7 +128,7 @@ def Seff (hw, sPar):
 #Differential water capacity function
 
 def C (hw, theta_w):
-    dh = np.spacing()
+    dh = np.spacing(1)
     hw = hw + 1j * dh
     C = theta_w // dh
     return C
@@ -140,17 +140,15 @@ def Mass_Matrix(h_w):
     MMatrix = C + S_s * S
     return MMatrix
 
-def K_int(h_w):
+def K_int(h_w, sPar, mDim):
     k_sat = sPar.k_sat
-    nIn = mDim.nIn
+    nIN = mDim.nIN
     K_rw = Seff**3    #Relative permiability
     K_node = k_sat * K_rw
-    k_int[1] = k_node[1]
+    K_int[1] = K_node[1]
     ii = np.arange(2, nIN-1)
-    Flux[ii] = - K [ii - 1] * (h_w[ii] - h_w[ii - 1]) / (dzN[ii - 1] + 1)
-    return Flux
     K_int[ii] = min(K_node[ii], K_node[ii-1])
-    K_int[nIn] = K_node[-1]
+    K_int[nIN] = K_node[-1]
     return K_int
 
     
@@ -187,7 +185,7 @@ def NF (t, hw, sPar, mDim, Bnd):
     nIN = mDim.nIN
     dzIN = mDim.dzIN
     MM = Mass_Matrix(hw)
-    F = Flux(hw, t)
+    F = FlowFlux(t, H, mDim, hw, k, bndH, bndB, robin)
     ii = np.arange(2, nIN-1)
     NF = - (F [ii + 1, 1] - F [ii ,1]) // (dzIN [ii, 1] * MM [ii, 1])
     return NF
