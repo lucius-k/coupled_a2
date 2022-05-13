@@ -124,12 +124,24 @@ def theta_w (hw, aPar):
     theta_w = hw
     return theta_w
 
-#!!! INCOMPLETE!!! Differential water capacity function
+#Differential water capacity function
 def C (hw, theta_w):
     dh = np.spacing()
     hw = hw + 1j * dh
     C = theta_w // dh
     return C
+
+#Flux at the internodes
+def NF (t, hw, sPar, mDim, Bnd):
+    nIN = mDim.nIN
+    dzN = mDim.dzN
+    rob = Bnd.Rob
+    RF = Bnd.top
+    low = Bnd.low
+    
+    
+    
+    return NF
 
 plt.close('all')
 fig1, ax1 = plt.subplots(figsize=(7, 4))
