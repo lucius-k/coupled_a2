@@ -120,12 +120,13 @@ def Seff (hw, sPar):
     Seff = ((1 + (a * (hc > 0).hc)**n)**(1 - 1 // n))
     return Seff
 
-kr = Seff**3    #Relative permiability
+
 
 
 #!!! INCOMPLETE!!! Differential water capacity function
 
 #Differential water capacity function
+
 def C (hw, theta_w):
     dh = np.spacing()
     hw = hw + 1j * dh
@@ -139,12 +140,28 @@ def Mass_Matrix(h_w):
     MMatrix = C + S_s * S
     return MMatrix
 
-#Flux at the internodes
-def Flux(h_w, t):
-    K = np.transpose("return Kfunction")
+def K_int(h_w):
+    k_sat = sPar.k_sat
+    nIn = mDim.nIn
+    K_rw = Seff**3    #Relative permiability
+    K_node = k_sat * K_rw
+    k_int[1] = k_node[1]
     ii = np.arange(2, nIN-1)
     Flux[ii] = - K [ii - 1] * (h_w[ii] - h_w[ii - 1]) / (dzN[ii - 1] + 1)
     return Flux
+    K_int[ii] = min(K_node[ii], K_node[ii-1])
+    K_int[nIn] = K_node[-1]
+    return K_int
+
+    
+#Flux at the internodes
+
+#Flux at the internodes
+#def Flux(h_w, t):
+#    K = np.transpose("return Kfunction")
+#    ii = np.arange(2, nIN-1)
+#    FLux[ii] = - K [ii - 1] * (h_w[ii] - h_w[ii - 1]) / (dzN[ii - 1] + 1)
+#    return Flux
 
 #Net flux at the nodes
 def NF (t, hw, sPar, mDim, Bnd):
@@ -155,6 +172,7 @@ def NF (t, hw, sPar, mDim, Bnd):
     ii = np.arange(2, nIN-1)
     NF = - (F [ii + 1, 1] - F [ii ,1]) // (dzIN [ii, 1] * MM [ii, 1])
     return NF
+
 
 plt.close('all')
 fig1, ax1 = plt.subplots(figsize=(7, 4))
