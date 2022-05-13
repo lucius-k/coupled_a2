@@ -123,42 +123,38 @@ def Seff (hw, sPar):
 kr = Seff**3    #Relative permiability
 
 
-<<<<<<< HEAD
 #!!! INCOMPLETE!!! Differential water capacity function
-=======
 
 #Differential water capacity function
->>>>>>> aed3bfc3e7db2ff29e053491a2dfd6483d420879
 def C (hw, theta_w):
     dh = np.spacing()
     hw = hw + 1j * dh
     C = theta_w // dh
     return C
 
-<<<<<<< HEAD
+#Mass Matrix for Richards equation
 def Mass_Matrix(h_w):
     S = theta_w / theta_s  
     S_s = rhoW * g *(cv + theta_s * beta)
     MMatrix = C + S_s * S
     return MMatrix
 
+#Flux at the internodes
 def Flux(h_w, t):
     K = np.transpose("return Kfunction")
     ii = np.arange(2, nIN-1)
     FLux[ii] = - K [ii - 1] * (h_w[ii] - h_w[ii - 1]) / (dzN[ii - 1] + 1)
     return Flux
 =======
-#Flux at the internodes
+#Net flux at the nodes
 def NF (t, hw, sPar, mDim, Bnd):
     nIN = mDim.nIN
-    dzN = mDim.dzN
+    dzIN = mDim.dzIN
     MM = Mass_Matrix(hw)
     F = Flux(h_w, t)
     ii = np.arange(2, nIN-1)
-    NF = - (F [ii + 1, 1] - F [ii ,1]) // (dzIN [ii, 1] * MassM [ii, 1])
+    NF = - (F [ii + 1, 1] - F [ii ,1]) // (dzIN [ii, 1] * MM [ii, 1])
     return NF
-
->>>>>>> aed3bfc3e7db2ff29e053491a2dfd6483d420879
 
 plt.close('all')
 fig1, ax1 = plt.subplots(figsize=(7, 4))
