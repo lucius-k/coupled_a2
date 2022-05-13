@@ -55,7 +55,7 @@ rhoW = 1000  # [kg/m3] density of water
 rhoS = 2650  # [kg/m3] density of solid phase
 rhoB = 1700  # %[kg/m3] dry bulk density of soil
 por = 1 - rhoB / rhoS  # [-] porosity of soil = saturated water content
-
+beta = 4.5 * 10 ** -6 
 # Soil properties match those of a silt
 theta_r = np.random.uniform(0.05, 0.07)    # [-] Residual water content
 theta_s = por                              # [-] Saturated water content
@@ -130,6 +130,13 @@ def C (hw, theta_w):
     hw = hw + 1j * dh
     C = theta_w // dh
     return C
+
+def Mass_Matrix(h_w):
+    S = theta_w / theta_s  
+    S_s = rhoW * g *(cv + theta_s * beta)
+    MMatrix = C + S_s * S
+    return MMatrix
+
 
 plt.close('all')
 fig1, ax1 = plt.subplots(figsize=(7, 4))
