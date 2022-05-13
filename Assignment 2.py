@@ -117,18 +117,12 @@ def Seff (hw, sPar):
     a = sPar.a
     n = sPar.n
     hc = -hw
-    if hc > 0:
-        Seff = ((1 + (a * hc)**n)**(1 - 1 // n))
-    else:
-        Seff = 1
+    Seff = ((1 + (a * (hc > 0).hc)**n)**(1 - 1 // n))
     return Seff
 
 kr = Seff**3    #Relative permiability
 
-    # !!!! WRONG and TEMPORARY
-def theta_w (h_w):
-    theta_w = theta_r + (theta_s - theta_r) * Seff
-    return theta_w
+
 <<<<<<< HEAD
 #!!! INCOMPLETE!!! Differential water capacity function
 =======
@@ -158,13 +152,12 @@ def Flux(h_w, t):
 def NF (t, hw, sPar, mDim, Bnd):
     nIN = mDim.nIN
     dzN = mDim.dzN
-    rob = Bnd.Rob
-    RF = Bnd.top
-    low = Bnd.low
-    
-    
-    
+    MM = Mass_Matrix(hw)
+    F = Flux(h_w, t)
+    ii = np.arange(2, nIN-1)
+    NF = - ((F(ii+1,1) - F(ii,1))) // ((dzIN(ii,1) * MassM(ii,1)))
     return NF
+
 >>>>>>> aed3bfc3e7db2ff29e053491a2dfd6483d420879
 
 plt.close('all')
