@@ -187,7 +187,7 @@ def NF (t, hw, sPar, mDim, Bnd):
     nIN = mDim.nIN
     dzIN = mDim.dzIN
     MM = Mass_Matrix(hw)
-    F = Flux(hw, t)
+    F = FlowFlux(hw, t)
     ii = np.arange(2, nIN-1)
     NF = - (F [ii + 1, 1] - F [ii ,1]) // (dzIN [ii, 1] * MM [ii, 1])
     return NF
