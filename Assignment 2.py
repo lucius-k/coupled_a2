@@ -51,18 +51,19 @@ mDim = pd.Series(mDim)
 # ============================== Soil Properties ==============================
 # =============================================================================
 
-rhoW = 1000  # [kg/m3] density of water
-rhoS = 2650  # [kg/m3] density of solid phase
-rhoB = 1700  # %[kg/m3] dry bulk density of soil
-por = 1 - rhoB / rhoS  # [-] porosity of soil = saturated water content
-beta = 4.5 * 10 ** -6 
+rhoW = 1000                                 # [kg/m3] Density of water
+rhoS = 2650                                 # [kg/m3] Density of solid phase
+rhoB = 1700                                 # [kg/m3] Dry bulk density of soil
+por = 1 - rhoB / rhoS                       # [-] Porosity of soil = saturated water content
+beta = 4.5 * 10 ** -6                       # [/m] Compressibility of water
+
 # Soil properties match those of a silt
 theta_r = np.random.uniform(0.05, 0.07)    # [-] Residual water content
 theta_s = por                              # [-] Saturated water content
 k_sat = np.random.uniform(1, 3)*(10**-5)   # [m/day] Saturated hydaulic conductivity
 a = np.random.uniform(1.5, 1.1)            # [/m] van Genuchten parameter
 n = np.random.uniform(1.3, 1.5)            # [-] van Genuchten parameter
-cv = 10**-4                                # [/m] Compressibility
+cv = 10**-4                                # [/m] Compressibility of soil
 sPar = {'theta_r': theta_r, 'theta_s': theta_s, 'k_sat': k_sat, 'a': a, 'n': n, 'cv': cv}
 sPar = pd.Series(sPar)
 
