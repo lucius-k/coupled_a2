@@ -123,7 +123,7 @@ def Seff (hw, sPar):
         Seff = 1
     return Seff
 
-kr = Seff**3    #Relative permiability
+
 
     # !!!! WRONG and TEMPORARY
 def theta_w (h_w):
@@ -135,7 +135,7 @@ def theta_w (h_w):
 
 #Differential water capacity function
 >>>>>>> aed3bfc3e7db2ff29e053491a2dfd6483d420879
-def C (hw, theta_w):
+def C(hw, theta_w):
     dh = np.spacing()
     hw = hw + 1j * dh
     C = theta_w // dh
@@ -148,12 +148,19 @@ def Mass_Matrix(h_w):
     MMatrix = C + S_s * S
     return MMatrix
 
-def Flux(h_w, t):
-    K = np.transpose("return Kfunction")
+   
+def K_int(h_w):
+    k_sat = sPar.k_sat
+    nIn = mDim.nIn
+    K_rw = Seff**3    #Relative permiability
+    K_node = k_sat * K_rw
+    k_int[1] = k_node[1]
     ii = np.arange(2, nIN-1)
-    FLux[ii] = - K [ii - 1] * (h_w[ii] - h_w[ii - 1]) / (dzN[ii - 1] + 1)
-    return Flux
-=======
+    K_int[ii] = min(K_node[ii], K_node[ii-1])
+    K_int[nIn] = K_node[-1]
+    return K_int
+
+    
 #Flux at the internodes
 def NF (t, hw, sPar, mDim, Bnd):
     nIN = mDim.nIN
@@ -165,6 +172,9 @@ def NF (t, hw, sPar, mDim, Bnd):
     
     
     return NF
+
+
+
 >>>>>>> aed3bfc3e7db2ff29e053491a2dfd6483d420879
 
 plt.close('all')
