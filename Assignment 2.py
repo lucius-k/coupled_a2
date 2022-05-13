@@ -129,13 +129,19 @@ kr = Seff**3    #Relative permiability
 def theta_w (h_w):
     theta_w = theta_r + (theta_s - theta_r) * Seff
     return theta_w
+<<<<<<< HEAD
 #!!! INCOMPLETE!!! Differential water capacity function
+=======
+
+#Differential water capacity function
+>>>>>>> aed3bfc3e7db2ff29e053491a2dfd6483d420879
 def C (hw, theta_w):
-    dh = np.sqrt(eps)
+    dh = np.spacing()
     hw = hw + 1j * dh
     C = theta_w // dh
     return C
 
+<<<<<<< HEAD
 def Mass_Matrix(h_w):
     S = theta_w / theta_s  
     S_s = rhoW * g *(cv + theta_s * beta)
@@ -147,6 +153,19 @@ def Flux(h_w, t):
     ii = np.arange(2, nIN-1)
     FLux[ii] = - K [ii - 1] * (h_w[ii] - h_w[ii - 1]) / (dzN[ii - 1] + 1)
     return Flux
+=======
+#Flux at the internodes
+def NF (t, hw, sPar, mDim, Bnd):
+    nIN = mDim.nIN
+    dzN = mDim.dzN
+    rob = Bnd.Rob
+    RF = Bnd.top
+    low = Bnd.low
+    
+    
+    
+    return NF
+>>>>>>> aed3bfc3e7db2ff29e053491a2dfd6483d420879
 
 plt.close('all')
 fig1, ax1 = plt.subplots(figsize=(7, 4))
