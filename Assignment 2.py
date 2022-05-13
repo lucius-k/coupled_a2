@@ -59,13 +59,18 @@ beta = 4.5 * 10 ** -6                       # [/m] Compressibility of water
 g = 9.81                        
 
 # Soil properties match those of a silt
-theta_r = np.random.uniform(0.05, 0.07)    # [-] Residual water content
+theta_r = 0.02#np.random.uniform(0.05, 0.07)    # [-] Residual water content
 theta_s = por                              # [-] Saturated water content
-k_sat = np.random.uniform(1, 3)*(10**-5)   # [m/day] Saturated hydaulic conductivity
-a = np.random.uniform(1.5, 1.1)            # [/m] van Genuchten parameter
-n = np.random.uniform(1.3, 1.5)            # [-] van Genuchten parameter
+k_sat = 1 #np.random.uniform(1, 3)*(10**-5)   # [m/day] Saturated hydaulic conductivity
+a = 10 #np.random.uniform(1.5, 1.1)            # [/m] van Genuchten parameter
+n = 3 #np.random.uniform(1.3, 1.5)            # [-] van Genuchten parameter
 cv = 10**-4                                # [/m] Compressibility of soil
-sPar = {'theta_r': theta_r, 'theta_s': theta_s, 'k_sat': k_sat, 'a': a, 'n': n, 'cv': cv}
+sPar = {'theta_r': theta_r * np.ones(np.shape(zN)), 
+        'theta_s': theta_s * np.ones(np.shape(zN)), 
+        'k_sat': k_sat * np.ones(np.shape(zN)),
+        'a': a * np.ones(np.shape(zN)),
+        'n': n * np.ones(np.shape(zN)),
+        'cv': cv * np.ones(np.shape(zN))}
 sPar = pd.Series(sPar)
 
 # ## Definition of the Boundary Parameters
@@ -85,7 +90,7 @@ bPar = pd.Series(bPar)           # one dimensional array with all boundary param
 # ## Initial Conditions
 # Initial Conditions
 WL = -0.25  #initial water level
-hIni = np.ones(np.shape(zN)) * (10.0 + 273.15)  # K
+hIni = -0.75 - zN #np.ones(np.shape(zN)) * (10.0 + 273.15)  # K
 
 MyHD = UFC.FlowDiffusion(sPar, mDim, bPar)
 
@@ -117,10 +122,12 @@ def Seff (hw, sPar):
     a = sPar.a
     n = sPar.n
     hc = -hw
-    Seff = ((1 + (a * (hc > 0).hc)**n)**(1 - 1 // n))
+    Seff = ((1 + (a * (hc > 0) * hc)**n)**-(1 - 1 / n))
     return Seff
 
-
+def thetaW(hw,sPar):
+    sEff=Seff(hw,
+              )
 
 
 #!!! INCOMPLETE!!! Differential water capacity function
