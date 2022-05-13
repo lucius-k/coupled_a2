@@ -155,7 +155,7 @@ def NF (t, hw, sPar, mDim, Bnd):
     MM = Mass_Matrix(hw)
     F = Flux(h_w, t)
     ii = np.arange(2, nIN-1)
-    NF = - ((F(ii+1,1) - F(ii,1))) // ((dzIN(ii,1) * MassM(ii,1)))
+    NF = - (F [ii + 1, 1] - F [ii ,1]) // (dzIN [ii, 1] * MassM [ii, 1])
     return NF
 
 >>>>>>> aed3bfc3e7db2ff29e053491a2dfd6483d420879
