@@ -77,22 +77,22 @@ sPar = pd.Series(sPar)
 # boundary parameters
 # no Dirichlet condition (top and bottom are both Robin)
 
-bPar = {'avgT': 273.15 + 10,
-        'rangeT': 20,
-        'tMin': 46,
-        'topCond': 'RObin',
-        'lambdaRobTop': 1e7,
-        'lambdaRobBot': 1e6,
-        'TBndBot': 273.15 + 10
-        }
+# bPar = {'avgT': 273.15 + 10,
+#         'rangeT': 20,
+#         'tMin': 46,
+#         'topCond': 'RObin',
+#         'lambdaRobTop': 1e7,
+#         'lambdaRobBot': 1e6,
+#         'TBndBot': 273.15 + 10
+#         }
 
-bPar = pd.Series(bPar)           # one dimensional array with all boundary parameters
+#bPar = pd.Series(bPar)           # one dimensional array with all boundary parameters
 # ## Initial Conditions
 # Initial Conditions
 WL = -0.25  #initial water level
 hIni = -0.75 - zN #np.ones(np.shape(zN)) * (10.0 + 273.15)  # K
 
-MyHD = UFC.FlowDiffusion(sPar, mDim, bPar)
+MyHD = UFC.FlowDiffusion(sPar, mDim)
 
 
 
