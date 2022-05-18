@@ -26,9 +26,7 @@ class FlowDiffusion:
         self.n = n
         self.cv = cv
     
-    def BndTTop(self, t):           # Head top as function of time
-        bndT = -0.001 * (t > 25)  # m/day       
-        return bndT
+    
     
     #Effective saturation function 
     def Seff (self, hw, sPar):
@@ -84,7 +82,7 @@ class FlowDiffusion:
         q = np.zeros((nIN, nc),dtype=T.dtype)  
         hw = par.hw
         k = sPar.k_sat
-        bndT = bPar.bndT
+        #bndT = bPar.bndT
         bndB = bPar.bndB
         robin = bPar.robin
         
@@ -98,17 +96,16 @@ class FlowDiffusion:
         
         print(q)
         # Flux at top
-        # if t > 25:
-        #     q[nIN-1] = bndT
-        # else:
-        #     q[nIN-1] = 0
-        #     return
         
-        # if bndB == 'gravity':
-        #     q[0] = 0
-        # else:
-        #     q[0] = -robin[1]*(hw[0]-robin[1])
-        #     return
+        qTop = bPar.TopBndFunc(t)
+        
+        q[nIN-1] = qTop # bndT *(t > 25)
+        
+        if bndB == 'gravity':
+            q[0] = -k[0]
+        else:
+            q[0] = -bPar.robin*(hw[0]-bPar.hrobin)
+            return
         print(q)
         return q
     
@@ -121,7 +118,7 @@ class FlowDiffusion:
         dzIN = mDim.dzIN
         beta = par.beta
         k = sPar.k_sat
-        bndT = bPar.bndT
+        #bndT = bPar.bndT
         bndB = bPar.bndB
         robin = bPar.robin
         T = par.hw

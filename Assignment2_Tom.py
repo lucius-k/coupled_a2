@@ -80,11 +80,16 @@ UF = FlowDiffusion(theta_r, theta_s, k_sat, a, n, cv)
 # =============================================================================
 Robin = [1, 0.005]
 bndB = 'gravity'
-bndT = UF.BndTTop(tOut)
 
-bPar = {'bndT' : bndT,
-        'bndB' : bndB,
-        'robin': Robin,
+def BndTTop(t):           # Head top as function of time
+        bndT = -0.001 * (t > 25)  # m/day       
+        return bndT
+#bndT = UF.BndTTop(tOut)
+
+bPar = {'bndB' : bndB,
+        'robin': 1,
+        'hrobin': -0.25,
+        'TopBndFunc': BndTTop 
         }
 bPar = pd.Series(bPar)
 
