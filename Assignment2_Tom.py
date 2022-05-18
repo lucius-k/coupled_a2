@@ -96,11 +96,11 @@ Seff_initial = UF.Seff(hw_initial, sPar)
 theta_w_initial = UF.theta_w(hw_initial, sPar, Seff_initial)
 C_initial = UF.C(hw_initial, theta_w_initial)
 par = {'rhoW': rhoW * np.ones(np.shape(zN)),
-        'hw': hw_initial * np.ones(np.shape(zN)),
-        'Seff': Seff_initial * np.ones(np.shape(zN)), 
-        'theta_w': theta_w_initial * np.ones(np.shape(zN)),
-        'C': C_initial * np.ones(np.shape(zN)),
-        'beta': beta * np.ones(np.shape(zN))
+       'hw': hw_initial * np.ones(np.shape(zN)),
+       'Seff': Seff_initial * np.ones(np.shape(zN)), 
+       'theta_w': theta_w_initial * np.ones(np.shape(zN)),
+       'C': C_initial * np.ones(np.shape(zN)),
+       'beta': beta * np.ones(np.shape(zN))
         }
 par = pd.Series(par)
 int_result = UF.IntegrateFF(tOut, hw_initial.squeeze(), sPar, mDim, par, bPar)

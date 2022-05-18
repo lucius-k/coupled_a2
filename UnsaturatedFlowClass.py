@@ -90,20 +90,26 @@ class FlowDiffusion:
         
         # Flux at all the intermediate nodes
         ii = np.arange(1, nIN-1)
+        print(f"ii = {ii}")
+        print(f"k = {k}")
+        print(f"hw = {hw}")
+        print(f"dzN = {dzN}")
         q[ii] = -k[ii]*((hw[ii]-hw[ii-1])/(dzN[ii-1])+1)
         
+        print(q)
         # Flux at top
-        if t > 25:
-            q[nIN-1] = bndT
-        else:
-            q[nIN-1] = 0
-            return
+        # if t > 25:
+        #     q[nIN-1] = bndT
+        # else:
+        #     q[nIN-1] = 0
+        #     return
         
-        if bndB == 'gravity':
-            q[0] = 0
-        else:
-            q[0] = -robin[1]*(hw[0]-robin[1])
-            return
+        # if bndB == 'gravity':
+        #     q[0] = 0
+        # else:
+        #     q[0] = -robin[1]*(hw[0]-robin[1])
+        #     return
+        print(q)
         return q
     
     #Net flux at the nodes
@@ -123,7 +129,7 @@ class FlowDiffusion:
         test = self.FlowFlux(t, T, mDim, bPar, sPar, par)
         ii = np.arange(2, nIN-1)
         print(test)
-        DivFlowFlux = - (test [ii + 1] - test [ii]) / (dzIN [ii] * MM [ii])
+        DivFlowFlux = -(test [ii + 1] - test [ii]) / (dzIN [ii] * MM [ii])
         return DivFlowFlux, test 
     
     def IntegrateFF(self, tRange, iniSt, sPar, mDim, par, bPar):
