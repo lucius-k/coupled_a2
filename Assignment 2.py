@@ -116,8 +116,7 @@ def Seff (hw, sPar):
     Seff = ((1 + (a * (hc > 0) * hc)**n)**-(1 - 1 / n))
     return Seff
 
-#Differential water capacity function
-
+#Volumetric water content function
 def theta_w(hw, sPar):
     theta_r = sPar.theta_r
     theta_s = sPar.theta_s
@@ -125,7 +124,6 @@ def theta_w(hw, sPar):
     return theta_w
 
 #Differential water capacity function
-
 def C (hw, theta_w):
     dh = 1e-8
     hw = hw + 1j * dh
@@ -139,6 +137,7 @@ def Mass_Matrix(h_w):
     MMatrix = C + S_s * S
     return MMatrix
 
+#Hydraulic conductivities at internodes
 def K_int(h_w, sPar, mDim):
     k_sat = sPar.k_sat
     nIN = mDim.nIN
@@ -149,9 +148,6 @@ def K_int(h_w, sPar, mDim):
     K_int[ii] = min(K_node[ii], K_node[ii-1])
     K_int[nIN] = K_node[-1]
     return K_int
-
-    
-#Flux at the internodes
 
 #Flux at the internodes
 def FlowFlux(self, t, F, mDim, hw, k, bndH, bndB, robin):  
@@ -238,17 +234,17 @@ plt.close('all')
 fig1, ax1 = plt.subplots(figsize=(7, 4))
 for ii in np.arange(0, nN, 10):
     ax1.plot(tOut, int_result.y[ii, :], '-')
-ax1.set_title('Temperature (ODE)')
+ax1.set_title('Hydralic head over time')
 ax1.set_xlabel('time (days)')
-ax1.set_ylabel('temperature [K]')
+ax1.set_ylabel('hydralyc head [m]')
 
 fig2, ax2 = plt.subplots(figsize=(4, 7))
 for ii in np.arange(0, nOut, 10):
     ax2.plot(int_result.y[:, ii], zN, '-')
 
-ax2.set_title('Temperature vs. depth (ODE)')
+ax2.set_title('Hydralic head over depth')
 ax2.set_ylabel('depth [m]')
-ax2.set_xlabel('temperature [K]')
+ax2.set_xlabel('Hydralic head [K]')
 
 
 fig3, ax3 = plt.subplots(figsize=(4, 7))
@@ -256,15 +252,12 @@ fig3, ax3 = plt.subplots(figsize=(4, 7))
 for ii in np.arange(2, nOut, 10):
     ax3.plot(qW[:, ii], zIN, '-')
 
-ax3.set_title('Heat Flux vs. depth (ODE)')
+ax3.set_title('Flux vs. depth')
 ax3.set_ylabel('depth [m]')
-ax3.set_xlabel('temperature [J/m2]')
-
-
-# plt.show()
+ax3.set_xlabel('hydralic head [J/m2]')
 
 plt.show()
-# plt.savefig('myfig.png')
 
+# plt.savefig('A2.png')
 # if __name__ == "__main__":
 # main()

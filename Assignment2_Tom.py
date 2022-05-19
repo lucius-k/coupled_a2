@@ -82,7 +82,7 @@ Robin = [1, 0.005]
 bndB = 'gravity'
 
 def BndTTop(t):           # Head top as function of time
-        bndT = -0.001 * (t > 25)  # m/day       
+        bndT = -0.001 #* (t > 25)  m/day
         return bndT
 #bndT = UF.BndTTop(tOut)
 
