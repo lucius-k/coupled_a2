@@ -110,3 +110,8 @@ par = {'rhoW': rhoW * np.ones(np.shape(zN)),
         }
 par = pd.Series(par)
 int_result = UF.IntegrateFF(tOut, hw_initial.squeeze(), sPar, mDim, par, bPar)
+
+# Dirichlet boundary condition: write boundary temperature to output.
+
+if int_result.success:
+    print('Integration has been successful')
