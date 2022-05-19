@@ -60,8 +60,8 @@ class FlowDiffusion:
         MMatrix = C + S_s * S
         return MMatrix
 
-    def K_int(self, hw, sPar, mDim, Seff, H):
-        nr,nc = H.shape 
+    def K_int(self, sPar, mDim, Seff, H):
+        nc = H.shape 
         k_sat = sPar.k_sat
         nIN = mDim.nIN
         K_rw = Seff**3    #Relative permiability
@@ -74,17 +74,15 @@ class FlowDiffusion:
         return 
 
     #Flux at the internodes
-    def FlowFlux(self, t, T, mDim, bPar, sPar, par):  
-        nr,nc = T.shape                     
+    def FlowFlux(self, t, hw, mDim, bPar, sPar, par):  
+        nr, nc = hw.shape                     
         nIN = mDim.nIN             
-        nN = mDim.nN                   
         dzN = mDim.dzN
-        q = np.zeros((nIN, nc),dtype=T.dtype)  
+        q = np.zeros((nIN, nc),dtype=hw.dtype)  
         hw = par.hw
         k = sPar.k_sat
         #bndT = bPar.bndT
         bndB = bPar.bndB
-        robin = bPar.robin
         
         # Flux at all the intermediate nodes
         ii = np.arange(1, nIN-1)
@@ -110,51 +108,50 @@ class FlowDiffusion:
         return q
     
     #Net flux at the nodes
-    def DivFlowFlux (self, t, hw, sPar, mDim, par, bPar):
+    def DivFlowFlux (self, t, T, hw, sPar, mDim, par, bPar):
+        nr, nc = hw.shape
         rhoW = par.rhoW
+        nN = mDim.nN
         theta_w = par.theta_w
         C = par.C
         nIN = mDim.nIN
         dzIN = mDim.dzIN
         beta = par.beta
-        k = sPar.k_sat
-        #bndT = bPar.bndT
-        bndB = bPar.bndB
-        robin = bPar.robin
         T = par.hw
         MM = self.Mass_Matrix(sPar, rhoW, hw, theta_w, beta, C)
         test = self.FlowFlux(t, T, mDim, bPar, sPar, par)
+        DivFlowFlux = np.zeros([nN, nc],dtype=hw.dtype)
         ii = np.arange(2, nIN-1)
         print(test)
-        DivFlowFlux = -(test [ii + 1] - test [ii]) / (dzIN [ii] * MM [ii])
-        return DivFlowFlux, test 
+        DivFlowFlux[ii] = -(test [ii + 1] - test [ii]) / (dzIN [ii] * MM [ii])
+        return DivFlowFlux 
     
     def IntegrateFF(self, tRange, iniSt, sPar, mDim, par, bPar):
         
         def dYdt(t, T):
             if len(T.shape)==1:
                 T = T.reshape(self.mDim.nN,1)
-            rates = self.DivFlowFlux(t, T, sPar, mDim, par, bPar)
+            rates = self.DivFlowFlux(self, t, T, sPar, mDim, par, bPar)
             return rates
         
-        def jacFun(t, y):
-            if len(y.shape)==1:
-                y = y.reshape(self.mDim.nN,1)
-        
-            nr, nc = y.shape
-            dh = 1e-8
-            ycmplx = y.copy().astype(complex)
-            ycmplx = np.repeat(ycmplx,nr,axis=1)
-            c_ex = np.ones([nr,1])* 1j*dh
-            ycmplx = ycmplx + np.diagflat(c_ex,0)
-            dfdy = dYdt(t, ycmplx).imag/dh
-            return sp.coo_matrix(dfdy)
+#        def jacFun(t, y):
+#            if len(y.shape)==1:
+#                y = y.reshape(self.mDim.nN,1)
+#        
+#            nr, nc = y.shape
+#            dh = 1e-8
+#            ycmplx = y.copy().astype(complex)
+#            ycmplx = np.repeat(ycmplx,nr,axis=1)
+#            c_ex = np.ones([nr,1])* 1j*dh
+#            ycmplx = ycmplx + np.diagflat(c_ex,0)
+#            dfdy = dYdt(t, ycmplx).imag/dh
+#            return sp.coo_matrix(dfdy)
         
         # solve rate equation
         t_span = [tRange[0],tRange[-1]]
-        int_result = spi.solve_ivp(dYdt, t_span, iniSt.squeeze(), 
+        int_result = spi.solve_ivp(dYdt, t_span, iniSt, 
                                     t_eval=tRange, 
-                                    method='BDF', vectorized=True, jac=jacFun, 
+                                    method='BDF', vectorized=True, 
                                     rtol=1e-8)
         
         return int_result
