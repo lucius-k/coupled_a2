@@ -7,8 +7,6 @@ Created on Fri May  6 09:42:36 2022
 
 import numpy as np
 import pandas as pd
-import scipy.integrate as spi
-import scipy.sparse as sp
 import matplotlib.pyplot as plt
 import seaborn as sns
 # import MyTicToc as mt
@@ -45,7 +43,7 @@ mDim = {'zN' : zN,
         }
 mDim = pd.Series(mDim)
 
-tOut = np.logspace(-10, np.log10(225), 1000)
+tOut = np.linspace(0, 365, 366)
 nOut = np.shape(tOut)[0]
 # =============================================================================
 # ============================== Soil Properties ==============================
@@ -57,19 +55,18 @@ por = 1 - rhoB / rhoS               # [-] porosity of soil = saturated water con
 beta = 4.5e-6                       # Compressibility of water
 
 # Soil properties match those of a silt                          
-theta_r = 0.02                      # [-] Residual water content
+theta_r = 0.05                      # [-] Residual water content
 theta_s = por                       # [-] Saturated water content
-k_sat = 0.0001                          # [m/day] Saturated hydaulic conductivity
-a = 5                               # [/m] van Genuchten parameter
+k_sat = 1                           # [m/day] Saturated hydaulic conductivity
+a = 6                               # [/m] van Genuchten parameter
 n = 2                               # [-] van Genuchten parameter
-cv = 10**-2                        # [/m] Compressibility
+cv = 10**-4                         # [/m] Compressibility
 sPar = {'theta_r': theta_r * np.ones(np.shape(zN)),
         'theta_s': theta_s * np.ones(np.shape(zN)),
         'k_sat': k_sat * np.ones(np.shape(zN)), 
         'a': a * np.ones(np.shape(zN)),
         'n': n * np.ones(np.shape(zN)),
         'cv': cv * np.ones(np.shape(zN)),
-        'rhoW': rhoW * np.ones(np.shape(zN))
         }
 sPar = pd.Series(sPar)
 UF = FlowDiffusion(theta_r, theta_s, k_sat, a, n, cv)
@@ -94,8 +91,8 @@ bPar = pd.Series(bPar)
 
 
 # Initial conditions
-WL = -0.25
-hw_initial = np.ones(np.shape(zN)) * WL - zN
+WL = 0.25
+hw_initial = np.ones(np.shape(zN)) * -WL - zN
 # Seff_initial = UF.Seff(hw_initial, sPar)
 # theta_w_initial = UF.theta_w(hw_initial, sPar)
 # C_initial = UF.C(hw_initial, sPar)
@@ -110,7 +107,6 @@ par = pd.Series(par)
 int_result = UF.IntegrateFF(tOut, hw_initial.squeeze(), sPar, mDim, par, bPar) 
 
 Flow = UF.FlowFlux(tOut, int_result.y, mDim, bPar, sPar)
-# print(int_result.y[:, ii])
 # =============================================================================
 # ================================== Plotting =================================
 # =============================================================================
