@@ -24,106 +24,104 @@ class FlowDiffusion:
         self.k_sat = k_sat  
         self.a = a    
         self.n = n
-        self.cv = cv
-    
-    
+        self.cv = cv    
     
     #Effective saturation function 
-    def Seff (self, hw, sPar):
+    def Seff (self, T, sPar):
         a = sPar.a
         n = sPar.n
-        hc = -hw
-        Seff = ((1 + (a * (hc > 0) * hc)**n)**-(1 - 1 / n))
+        hc = -T
+        Seff = (1 + (a * (hc * (hc>0))) ** n) ** -(1 - 1 / n)  
         return Seff
  
     #Differential water capacity function    
-    def theta_w(self, hw, sPar, Seff):
+    def theta_w(self, T, sPar):
         theta_r = sPar.theta_r
         theta_s = sPar.theta_s
-        theta_w = theta_r + (theta_s - theta_r) * Seff
+        Seff = self.Seff(T, sPar)
+        theta_w = Seff * (theta_s - theta_r) + theta_r
         return theta_w   
 
     #Differential water capacity function 
-    def C (self, hw, theta_w):
-        dh = 1e-8
-        hw = hw + 1j * dh
-        C = theta_w / dh
+    def C (self, T, sPar):
+        dh = np.sqrt(np.finfo(float).eps)
+        hw = T + 1j * dh
+        theta_w = self.theta_w(hw, sPar)
+        C = theta_w.imag / dh
         return C    
 
     #Mass Matrix for Richards equation
-    def Mass_Matrix(self, sPar, rhoW, hw, theta_w, beta, C):
+    def Mass_Matrix(self, sPar, T, beta, par):
         theta_s = sPar.theta_s
+        rhoW = par.rhoW
         cv = sPar.cv        
         g = 9.81
-        S = theta_w / theta_s  
         S_s = rhoW * g *(cv + theta_s * beta)
+        theta_w = self.theta_w(T, sPar)
+        S = theta_w / theta_s  
+        C = self.C(T, sPar)
         MMatrix = C + S_s * S
         return MMatrix
 
-    def K_int(self, sPar, mDim, Seff, H):
-        nc = H.shape 
+    def K_int(self, sPar, mDim, T):
+        nr, nc = T.shape 
         k_sat = sPar.k_sat
         nIN = mDim.nIN
+        Seff = self.Seff(T, sPar)
         K_rw = Seff**3    #Relative permiability
         K_node = k_sat * K_rw
-        K_int = np.zeros((nIN, nc))  
+        K_int = np.zeros((nIN, nc),dtype=T.dtype)  
         K_int[0] = K_node[0]
         ii = np.arange(2, nIN-1)
-        K_int[ii] = min(K_node[ii], K_node[ii-1])
-        K_int[nIN] = K_node[-1]
-        return 
+        K_int[ii] = K_node[ii]
+        K_int[-1] = K_node[-1]
+        return  K_int
 
     #Flux at the internodes
-    def FlowFlux(self, t, hw, mDim, bPar, sPar, par):  
-        nr, nc = hw.shape                     
+    def FlowFlux(self, t, T, mDim, bPar, sPar):  
+        nr, nc = T.shape                     
         nIN = mDim.nIN             
         dzN = mDim.dzN
-        q = np.zeros((nIN, nc),dtype=hw.dtype)  
-        hw = par.hw
-        k = sPar.k_sat
-        #bndT = bPar.bndT
-        bndB = bPar.bndB
+        q = np.zeros((nIN, nc),dtype=T.dtype)  
+        hw = T
+        bndB = bPar.bndB    
         
-        # Flux at all the intermediate nodes
-        ii = np.arange(1, nIN-1)
-        print(f"ii = {ii}")
-        print(f"k = {k}")
-        print(f"hw = {hw}")
-        print(f"dzN = {dzN}")
-        q[ii] = -k[ii]*((hw[ii]-hw[ii-1])/(dzN[ii-1])+1)
-        
-        print(q)
         # Flux at top
-        
         qTop = bPar.TopBndFunc(t)
-        
         q[nIN-1] = qTop # bndT *(t > 25)
         
+        S = self.Seff(T, sPar)
+        S = S**3
+        # Conductivity
+        # K = self.K_int(sPar, mDim, T)
+        k = sPar.k_sat
+        # Flux at all the intermediate nodes
+        ii = np.arange(1, nIN-1)
+        q[ii] = (-k[ii]*S[ii])*((T[ii]-T[ii-1])/(dzN[ii-1])+1)
+        
+        # Flux at bottom
         if bndB == 'gravity':
-            q[0] = -k[0]
+            q[0] = -k[0]*S[0]
         else:
-            q[0] = -bPar.robin*(hw[0]-bPar.hrobin)
+            q[0] = -bPar.robin*(T[0]-bPar.hrobin)
             return
-        print(q)
         return q
     
     #Net flux at the nodes
-    def DivFlowFlux (self, t, T, hw, sPar, mDim, par, bPar):
-        nr, nc = hw.shape
+    def DivFlowFlux (self, t, T, sPar, mDim, par, bPar):
+        nr, nc = T.shape
         rhoW = par.rhoW
         nN = mDim.nN
-        theta_w = par.theta_w
-        C = par.C
+        # theta_w = self.theta_w(T, sPar)
+        # C = self.C(T, sPar)
         nIN = mDim.nIN
         dzIN = mDim.dzIN
         beta = par.beta
-        T = par.hw
-        MM = self.Mass_Matrix(sPar, rhoW, hw, theta_w, beta, C)
-        test = self.FlowFlux(t, T, mDim, bPar, sPar, par)
-        DivFlowFlux = np.zeros([nN, nc],dtype=hw.dtype)
+        MM = self.Mass_Matrix(sPar, T, beta, par)
+        test = self.FlowFlux(t, T, mDim, bPar, sPar)
+        DivFlowFlux = np.zeros([nN, nc],dtype=T.dtype)
         ii = np.arange(2, nIN-1)
-        print(test)
-        DivFlowFlux[ii] = -(test [ii + 1] - test [ii]) / (dzIN [ii] * MM [ii])
+        DivFlowFlux[ii] = -(test [ii + 1] - test [ii]) / (dzIN [ii] * MM[ii])
         return DivFlowFlux 
     
     def IntegrateFF(self, tRange, iniSt, sPar, mDim, par, bPar):
@@ -131,7 +129,7 @@ class FlowDiffusion:
         def dYdt(t, T):
             if len(T.shape)==1:
                 T = T.reshape(self.mDim.nN,1)
-            rates = self.DivFlowFlux(self, t, T, sPar, mDim, par, bPar)
+            rates = self.DivFlowFlux(t, T, sPar, mDim, par, bPar)
             return rates
         
 #        def jacFun(t, y):

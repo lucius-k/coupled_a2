@@ -50,7 +50,6 @@ nOut = np.shape(tOut)[0]
 # =============================================================================
 # ============================== Soil Properties ==============================
 # =============================================================================
-
 rhoW = 1000                         # [kg/m3] density of water
 rhoS = 2650                         # [kg/m3] density of solid phase
 rhoB = 1700                         # [kg/m3] dry bulk density of soil
@@ -60,10 +59,10 @@ beta = 4.5e-6                       # Compressibility of water
 # Soil properties match those of a silt                          
 theta_r = 0.02                      # [-] Residual water content
 theta_s = por                       # [-] Saturated water content
-k_sat = 1                           # [m/day] Saturated hydaulic conductivity
-a = 3                               # [/m] van Genuchten parameter
-n = 1                               # [-] van Genuchten parameter
-cv = 10**-4                         # [/m] Compressibility
+k_sat = 0.0001                          # [m/day] Saturated hydaulic conductivity
+a = 5                               # [/m] van Genuchten parameter
+n = 2                               # [-] van Genuchten parameter
+cv = 10**-2                        # [/m] Compressibility
 sPar = {'theta_r': theta_r * np.ones(np.shape(zN)),
         'theta_s': theta_s * np.ones(np.shape(zN)),
         'k_sat': k_sat * np.ones(np.shape(zN)), 
@@ -96,22 +95,25 @@ bPar = pd.Series(bPar)
 
 # Initial conditions
 WL = -0.25
-hw_initial = -zN + WL
-Seff_initial = UF.Seff(hw_initial, sPar)
-theta_w_initial = UF.theta_w(hw_initial, sPar, Seff_initial)
-C_initial = UF.C(hw_initial, theta_w_initial)
+hw_initial = np.ones(np.shape(zN)) * WL - zN
+# Seff_initial = UF.Seff(hw_initial, sPar)
+# theta_w_initial = UF.theta_w(hw_initial, sPar)
+# C_initial = UF.C(hw_initial, sPar)
 par = {'rhoW': rhoW * np.ones(np.shape(zN)),
-       'hw': hw_initial * np.ones(np.shape(zN)),
-       'Seff': Seff_initial * np.ones(np.shape(zN)), 
-       'theta_w': theta_w_initial * np.ones(np.shape(zN)),
-       'C': C_initial * np.ones(np.shape(zN)),
+       # 'hw': hw_initial * np.ones(np.shape(zN)),
+       #  'Seff': Seff_initial * np.ones(np.shape(zN)), 
+       #  'theta_w': theta_w_initial * np.ones(np.shape(zN)),
+       #  'C': C_initial * np.ones(np.shape(zN)),
        'beta': beta * np.ones(np.shape(zN))
         }
 par = pd.Series(par)
 int_result = UF.IntegrateFF(tOut, hw_initial.squeeze(), sPar, mDim, par, bPar) 
 
-qH = UF.FlowFlux(tOut, int_result.y, mDim, bPar, sPar, par)
-print(int_result.y[:, ii])
+Flow = UF.FlowFlux(tOut, int_result.y, mDim, bPar, sPar)
+# print(int_result.y[:, ii])
+# =============================================================================
+# ================================== Plotting =================================
+# =============================================================================
 
 plt.close('all')
 fig1, ax1 = plt.subplots(figsize=(7, 4))
@@ -130,10 +132,8 @@ ax2.set_ylabel('Depth [m]')
 
 fig3, ax3 = plt.subplots(figsize=(4, 7))
 for ii in np.arange(2, nOut, 10):
-    ax3.plot(qH[:, ii], zIN, '-')
+    ax3.plot(Flow[:, ii], zIN, '-')
 ax3.set_title('Flux vs. depth')
 ax3.set_xlabel('Flux [m/day]')
 ax3.set_ylabel('Depth [m]')
-
-
 plt.show()
