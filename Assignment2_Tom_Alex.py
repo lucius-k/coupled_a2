@@ -83,9 +83,9 @@ bndB = 'gravity'
 
 def BndTTop(t):           # Head top as function of time
 ### FIX
-        bndT = -0.001 #* (t > 25)  m/day
+        bndT = -0.001 * (t > 25)  #m/day
         return bndT
-#bndT = UF.BndTTop(tOut)
+bndT = BndTTop(tOut)
 
 bPar = {'bndB' : bndB,
         'robin': 1,
