@@ -88,7 +88,6 @@ class FlowDiffusion:
         S = self.Seff(hw, sPar)
         k_rw = S**3
         K = k*k_rw
-        
         i = np.arange(1, nIN-1)
         
         # Flux at bottom
