@@ -45,7 +45,7 @@ mDim = {'zN' : zN,
         }
 mDim = pd.Series(mDim)
 
-tOut = np.linspace(1, 200, 200)
+tOut = np.logspace(-10, np.log10(225), 1000)
 nOut = np.shape(tOut)[0]
 # =============================================================================
 # ============================== Soil Properties ==============================
@@ -82,9 +82,9 @@ Robin = [1, 0.005]
 bndB = 'gravity'
 
 def BndTTop(t):           # Head top as function of time
-        bndT = -0.001 #* (t > 25)  m/day
+        bndT = -0.001 * (t>25) * (t<225)
         return bndT
-#bndT = UF.BndTTop(tOut)
+bndT = BndTTop(tOut)
 
 bPar = {'bndB' : bndB,
         'robin': 1,
@@ -108,4 +108,32 @@ par = {'rhoW': rhoW * np.ones(np.shape(zN)),
        'beta': beta * np.ones(np.shape(zN))
         }
 par = pd.Series(par)
-int_result = UF.IntegrateFF(tOut, hw_initial.squeeze(), sPar, mDim, par, bPar)
+int_result = UF.IntegrateFF(tOut, hw_initial.squeeze(), sPar, mDim, par, bPar) 
+
+qH = UF.FlowFlux(tOut, int_result.y, mDim, bPar, sPar, par)
+print(int_result.y[:, ii])
+
+plt.close('all')
+fig1, ax1 = plt.subplots(figsize=(7, 4))
+for ii in np.arange(0, nN, 10):
+    ax1.plot(tOut, int_result.y[ii, :], '-')
+ax1.set_title('Pressure head vs. time')
+ax1.set_xlabel('Time [days]')
+ax1.set_ylabel('Pressure head [m]')
+
+fig2, ax2 = plt.subplots(figsize=(4, 7))
+for ii in np.arange(0, nOut, 10):
+    ax2.plot(int_result.y[:, ii], zN, '-')
+ax2.set_title('Pressure head vs. depth')
+ax2.set_xlabel('Pressure head [m]')
+ax2.set_ylabel('Depth [m]')
+
+fig3, ax3 = plt.subplots(figsize=(4, 7))
+for ii in np.arange(2, nOut, 10):
+    ax3.plot(qH[:, ii], zIN, '-')
+ax3.set_title('Flux vs. depth')
+ax3.set_xlabel('Flux [m/day]')
+ax3.set_ylabel('Depth [m]')
+
+
+plt.show()
