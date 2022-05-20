@@ -44,6 +44,8 @@ mDim = {'zN' : zN,
 mDim = pd.Series(mDim)
 
 tOut = np.linspace(0, 365, 366)
+# tOut = np.linspace(0, 1, 101)
+# tOut = np.logspace(-10, np.log10(225), 1000)
 nOut = np.shape(tOut)[0]
 # =============================================================================
 # ============================== Soil Properties ==============================
@@ -52,15 +54,15 @@ rhoW = 1000                         # [kg/m3] density of water
 rhoS = 2650                         # [kg/m3] density of solid phase
 rhoB = 1700                         # [kg/m3] dry bulk density of soil
 por = 1 - rhoB / rhoS               # [-] porosity of soil = saturated water content
-beta = 4.5e-6                       # Compressibility of water
+beta = 1e-8                         # Compressibility of water
 
 # Soil properties match those of a silt                          
-theta_r = 0.05                      # [-] Residual water content
+theta_r = 0.08                      # [-] Residual water content
 theta_s = por                       # [-] Saturated water content
 k_sat = 1                           # [m/day] Saturated hydaulic conductivity
 a = 6                               # [/m] van Genuchten parameter
 n = 2                               # [-] van Genuchten parameter
-cv = 10**-4                         # [/m] Compressibility
+cv = 1e-6                           # [/m] Compressibility
 sPar = {'theta_r': theta_r * np.ones(np.shape(zN)),
         'theta_s': theta_s * np.ones(np.shape(zN)),
         'k_sat': k_sat * np.ones(np.shape(zN)), 
